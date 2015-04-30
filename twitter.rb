@@ -41,25 +41,28 @@ module Client
 		table :id, [:id]
 		#b is coming from post 
 		scratch :post, [:id, :server, :client, :msg, :context, :time]
+		scratch :request, [:client, :server, :context, :time]
 		channel :client, [:@server, :from, :msg, :context, :time, :id]
-		#channel :server, [:@to, :from, :unique_id]
-		channel :reponse
-		channel :request
+		channel :sendRequest, [:@server, :client, :context, :time]
 	end 
 
 	bloom do
 		client <~ post{|b| [b.server, b.client, b.msg, b.context, b.time, b.id]}
+		sendRequest <~ request{|r| [r.server, r.client, r.context, r.time]}
 		stdio <~ post.inspected
+		stdio <~ sendRequest.inspected
 	end 
 end 
 
 module Server 
 	state do
-		table :public_post, [:server, :from, :msg, :context, :time, :id]
+		table :serverId [:serverId]
+		scratch :response, [:id, :server, :client, :msg, :time]
 		scratch :conversation, [:from, :context, :time]
-		channel :client, [:@to, :from, :unique_id]
 		channel :server, [:@to, :from, :unique_id]
-		table :mesages, [:from, :msg, :context, :time]
+		#Need to figure this out
+		channel :getResponse, [:@server, :client, :]
+		table :posts, [:client, :server, :msg, :context, :time]
 	end 
 
 	bloom do 
@@ -94,7 +97,6 @@ tweet1.run_bg
 #tweet2.run_bg
 
 
-#Why is only one tweeting 
 
 tweet1.post <+ [["localhost:23456", "localhost:12345", "Hello world", "hellos", Time.new.strftime("%I:%M.%S.%3N"), 1]]
 #tweet2.public_post <+ [["localhost:23456", "localhost:34567", "Hello world", "hellos", 2]]
