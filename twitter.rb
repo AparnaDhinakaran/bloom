@@ -86,21 +86,21 @@ end
 
 # Ruby :port 
 tweet1 = Tweeter.new(:port => 12345)
-tweet2 = ServerTweet.new(:port => 23456)
+#tweet2 = ServerTweet.new(:port => 23456)
 
 
 #Running in bg
 tweet1.run_bg
-tweet2.run_bg
+#tweet2.run_bg
 
 
 #Why is only one tweeting 
 
-tweet1.post <+ [[1, "localhost:23456", "localhost:12345", "Hello world", "hellos", Time.new.strftime("%I:%M.%S.%3N")]]
-tweet2.public_post <+ [["localhost:23456", "localhost:34567", "Hello world", "hellos", 2]]
+tweet1.post <+ [["localhost:23456", "localhost:12345", "Hello world", "hellos", Time.new.strftime("%I:%M.%S.%3N"), 1]]
+#tweet2.public_post <+ [["localhost:23456", "localhost:34567", "Hello world", "hellos", 2]]
 
 tweet1.tick
-tweet2.tick
+#tweet2.tick
 sleep 10
 
 
